@@ -1,14 +1,21 @@
 @echo off
-set SKAFFOLD_COMMAND=skaffold build
 
 rem Run Skaffold build command
-%SKAFFOLD_COMMAND%
+skaffold build
 
-rem Check the exit code of the Skaffold command
+rem Check the error level to determine if the build was successful
 if %ERRORLEVEL% NEQ 0 (
-    echo Error: Skaffold build failed with exit code %ERRORLEVEL%.
-    rem Add any additional error handling steps here.
-    rem For example, you might want to log the error or send a notification.
+    rem Error handling based on the error level
+    if %ERRORLEVEL% EQU 1 (
+        echo Error: Docker build failed.
+    ) else if %ERRORLEVEL% EQU 2 (
+        echo Error: Failed to push images to the registry.
+    ) else if %ERRORLEVEL% EQU 3 (
+        echo Error: Skaffold configuration error.
+    ) else (
+        echo Unknown error occurred. Error level: %ERRORLEVEL%.
+    )
+    rem Add additional error handling steps here.
 ) else (
     echo Skaffold build completed successfully.
 )
