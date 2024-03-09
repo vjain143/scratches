@@ -12,3 +12,31 @@ To measure whether data conforms to defined physical representations in Trino, y
 5. **Integration with External Tools**: Integrate Trino with external data quality tools or frameworks that provide more advanced data profiling and validation capabilities. You can use Trino as a data source for these tools, allowing you to leverage its querying capabilities while benefiting from the additional features provided by the external tools.
 
 By combining these approaches, you can establish a comprehensive data quality assurance process in Trino to ensure that your data conforms to defined physical representations and meets your quality standards.
+
+# Completness 
+To measure data completeness in Trino, particularly in terms of the availability of all required data records and inclusion of mandatory properties, you can employ various techniques leveraging Trino's querying capabilities, metadata inspection, and data validation approaches. Here's how you can approach it:
+
+1. **Count of Records**: Use Trino to query the total count of records in the dataset. Compare this count against the expected number of records to ensure all required data records are present. For example:
+
+    ```sql
+    SELECT COUNT(*)
+    FROM your_table;
+    ```
+
+2. **Validation of Mandatory Properties**: Write SQL queries in Trino to validate the presence of mandatory properties in the dataset. You can use conditional statements or assertions to check if certain columns or properties are populated. For example:
+
+    ```sql
+    SELECT COUNT(*)
+    FROM your_table
+    WHERE mandatory_column IS NULL;
+    ```
+
+    This query will return the count of records where the mandatory column is NULL, indicating potential data quality issues.
+
+3. **Checksum Validation**: If the provider sends a file with a checksum for data integrity verification, you can calculate the checksum of the data in Trino and compare it with the provided checksum. Although Trino does not have built-in support for checksum calculations, you can compute the checksum using custom SQL functions or external tools and then compare it with the expected checksum.
+
+4. **File Header Inspection**: If the file contains a header with a row count or other metadata, you can extract and inspect this information in Trino to validate the completeness of the data. You may need to preprocess the file to extract the header information and then query it in Trino.
+
+5. **Data Profiling**: Use Trino to profile the data and identify any missing or incomplete records. Write SQL queries to calculate statistics such as the count of distinct values, minimum and maximum values, and presence of NULL values for relevant columns. Analyze the profiling results to identify any data completeness issues.
+
+By leveraging these techniques in Trino, you can establish a data quality validation process to ensure the completeness of your data in terms of both the availability of required records and the inclusion of mandatory properties. Additionally, you may need to collaborate with data providers to establish mechanisms for data validation and ensure data integrity during transmission.
