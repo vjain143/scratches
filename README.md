@@ -40,3 +40,30 @@ To measure data completeness in Trino, particularly in terms of the availability
 5. **Data Profiling**: Use Trino to profile the data and identify any missing or incomplete records. Write SQL queries to calculate statistics such as the count of distinct values, minimum and maximum values, and presence of NULL values for relevant columns. Analyze the profiling results to identify any data completeness issues.
 
 By leveraging these techniques in Trino, you can establish a data quality validation process to ensure the completeness of your data in terms of both the availability of required records and the inclusion of mandatory properties. Additionally, you may need to collaborate with data providers to establish mechanisms for data validation and ensure data integrity during transmission.
+
+# Timeliness
+To measure data timeliness and integration patterns in Trino, you can implement various techniques leveraging its querying capabilities, metadata inspection, and integration with external systems. Here's how you can approach it:
+
+1. **Data Timeliness Measurement**:
+   
+   - **Timestamp Analysis**: Use Trino to analyze timestamps associated with data records to determine their freshness. You can calculate metrics such as the average age of data, maximum delay from the time of generation to the time of ingestion, or the percentage of data arriving within predefined time windows.
+   
+   - **Real-time Monitoring**: Implement real-time monitoring solutions with Trino to track data arrival rates and identify any delays or bottlenecks in data ingestion pipelines. You can use Trino's querying capabilities to query streaming data sources and analyze data arrival patterns in real-time.
+
+2. **Integration Patterns Analysis**:
+   
+   - **Metadata Inspection**: Query metadata from Trino to analyze the integration patterns used for data exchange between producer and consumer systems. You can examine metadata such as connection strings, data formats, protocols, and communication frequencies to understand the integration patterns.
+   
+   - **Data Lineage Tracking**: Implement data lineage tracking solutions with Trino to trace the flow of data across different systems and components. By analyzing data lineage, you can identify integration patterns, data transformations, and dependencies between systems involved in data exchange.
+   
+   - **External System Integration**: Integrate Trino with external systems and tools that provide insights into integration patterns and data exchange mechanisms. For example, you can use monitoring and observability tools to monitor network traffic, API calls, and message queues to understand how data is transferred between systems.
+
+3. **Service Level Agreements (SLA) Monitoring**:
+   
+   - Define SLAs for data timeliness and integration patterns in collaboration with stakeholders. Monitor SLA compliance using Trino by querying data arrival timestamps and comparing them against SLA targets. You can generate reports and alerts to notify stakeholders of any SLA violations or deviations from expected integration patterns.
+
+4. **Data Quality Monitoring**:
+   
+   - Incorporate data timeliness and integration patterns into your data quality monitoring framework. Use Trino to execute data quality checks and validations against predefined criteria related to data freshness and integration patterns. Automate data quality assessments and generate reports to track performance over time.
+
+By implementing these techniques in Trino, you can measure data timeliness and integration patterns effectively, ensuring that data is both representative of current conditions and available for use by mutually agreed targets. Additionally, you can gain insights into how data is exchanged between producer and consumer systems, facilitating better decision-making and optimization of data integration processes.
