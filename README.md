@@ -67,3 +67,31 @@ To measure data timeliness and integration patterns in Trino, you can implement 
    - Incorporate data timeliness and integration patterns into your data quality monitoring framework. Use Trino to execute data quality checks and validations against predefined criteria related to data freshness and integration patterns. Automate data quality assessments and generate reports to track performance over time.
 
 By implementing these techniques in Trino, you can measure data timeliness and integration patterns effectively, ensuring that data is both representative of current conditions and available for use by mutually agreed targets. Additionally, you can gain insights into how data is exchanged between producer and consumer systems, facilitating better decision-making and optimization of data integration processes.
+## Timeliness Cosumer Point of view
+To measure data timeliness and integration patterns in Trino from a data consumer point of view, you can implement various techniques leveraging Trino's querying capabilities, metadata inspection, and integration with external systems. Here's how you can approach it:
+
+1. **Data Timeliness Measurement**:
+
+   - **Timestamp Analysis**: Use Trino to analyze timestamps associated with data records from the consumer's perspective. Calculate metrics such as the average delay from data generation to ingestion, maximum delay for critical data, or the percentage of late data arrivals compared to agreed-upon targets.
+
+   - **SLA Compliance Monitoring**: Define Service Level Agreements (SLAs) with data producers regarding data timeliness. Monitor SLA compliance using Trino by querying timestamps and comparing them against SLA targets. Generate reports and alerts to notify stakeholders of any SLA violations.
+
+2. **Integration Patterns Analysis**:
+
+   - **Metadata Inspection**: Query metadata from Trino to analyze the integration patterns used by data producers for data exchange. Examine metadata such as connection strings, data formats, protocols, and communication frequencies to understand the integration patterns from the consumer's perspective.
+
+   - **Data Lineage Tracking**: Implement data lineage tracking solutions with Trino to trace the flow of data from producers to consumers. Analyze data lineage to understand the integration patterns, data transformations, and dependencies involved in data exchange between systems.
+
+3. **Data Quality Monitoring**:
+
+   - **Data Arrival Monitoring**: Implement real-time monitoring solutions with Trino to track data arrival rates and delays from the consumer's perspective. Monitor data arrival timestamps and generate alerts for late or missing data arrivals compared to agreed-upon targets.
+
+   - **Data Validation Checks**: Perform data validation checks in Trino to ensure the completeness and accuracy of data from the consumer's viewpoint. Validate data against predefined criteria such as expected values, ranges, or formats to ensure data quality and reliability.
+
+4. **Collaboration with Data Producers**:
+
+   - Collaborate with data producers to establish mutually agreed-upon targets for data timeliness and integration patterns. Communicate consumer requirements and expectations regarding data freshness, availability, and integration mechanisms to data producers to ensure alignment.
+
+   - Work closely with data producers to address any issues or discrepancies identified during data timeliness and integration pattern analysis. Establish feedback mechanisms to provide input on data quality improvements and optimize data exchange processes between systems.
+
+By implementing these techniques in Trino from a data consumer point of view, you can effectively measure data timeliness and integration patterns, ensuring that data is both representative of current conditions and available for use by mutually agreed targets. Additionally, you can collaborate with data producers to improve data quality and optimize data exchange processes for better decision-making and business outcomes.
