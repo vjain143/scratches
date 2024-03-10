@@ -13,6 +13,27 @@ To measure whether data conforms to defined physical representations in Trino, y
 
 By combining these approaches, you can establish a comprehensive data quality assurance process in Trino to ensure that your data conforms to defined physical representations and meets your quality standards.
 
+## Correctness
+To measure data correctness in Trino from a data consumer's point of view, particularly related to whether data conforms to defined physical representations, you can implement various techniques leveraging Trino's querying capabilities, metadata inspection, and data validation approaches. Here's how you can approach it:
+
+1. **Metadata Inspection**:
+   - Use Trino to query metadata from your data sources to understand the physical representation of data, such as column names, data types, and constraints. You can use SQL queries to retrieve metadata information from tables or files.
+   - Compare the retrieved metadata against the defined physical representations to ensure that data conforms to expectations. Check if the order of columns matches the expected order, if data types are consistent, and if constraints are met.
+
+2. **Column Specification Validation**:
+   - Write SQL queries in Trino to validate if data adheres to fixed-width column specifications or other defined formats. For example, if you have a file with fixed-width columns, you can query the length of each column and compare it against the expected width.
+   - Use Trino's querying capabilities to execute these queries and identify any discrepancies between the actual data and the defined physical representations.
+
+3. **Data Validation Checks**:
+   - Perform data validation checks in Trino to ensure the correctness of data from a data consumer's viewpoint. Validate data against predefined criteria such as expected values, ranges, or formats.
+   - Write SQL queries to identify data quality issues such as missing values, outliers, or inconsistencies in data representation. For example, you can check for NULL values in mandatory fields or validate data formats such as dates, numbers, or strings.
+
+4. **Integration with Data Quality Tools**:
+   - Integrate Trino with external data quality tools or frameworks that provide advanced data validation capabilities. You can use Trino as a data source for these tools, allowing you to leverage its querying capabilities while benefiting from the additional features provided by the external tools.
+   - Use data quality tools to perform comprehensive data validation checks, including conformity to defined physical representations, and generate reports or alerts for any issues identified.
+
+By implementing these techniques in Trino from a data consumer's point of view, you can effectively measure data correctness and ensure that data conforms to defined physical representations. Additionally, you can identify and address any data quality issues to maintain the integrity and reliability of your data.
+
 # Completness 
 To measure data completeness in Trino, particularly in terms of the availability of all required data records and inclusion of mandatory properties, you can employ various techniques leveraging Trino's querying capabilities, metadata inspection, and data validation approaches. Here's how you can approach it:
 
@@ -40,6 +61,35 @@ To measure data completeness in Trino, particularly in terms of the availability
 5. **Data Profiling**: Use Trino to profile the data and identify any missing or incomplete records. Write SQL queries to calculate statistics such as the count of distinct values, minimum and maximum values, and presence of NULL values for relevant columns. Analyze the profiling results to identify any data completeness issues.
 
 By leveraging these techniques in Trino, you can establish a data quality validation process to ensure the completeness of your data in terms of both the availability of required records and the inclusion of mandatory properties. Additionally, you may need to collaborate with data providers to establish mechanisms for data validation and ensure data integrity during transmission.
+
+## Completness
+To measure data timeliness and integration patterns in Trino from a data consumer point of view, you can implement various techniques leveraging Trino's querying capabilities, metadata inspection, and integration with external systems. Here's how you can approach it:
+
+1. **Data Timeliness Measurement**:
+
+   - **Timestamp Analysis**: Query timestamps associated with data records in Trino to assess data freshness. Calculate metrics such as average data latency, maximum delay from data generation to ingestion, or percentage of late data arrivals compared to agreed-upon targets.
+
+   - **SLA Compliance Monitoring**: Define Service Level Agreements (SLAs) with data producers regarding data timeliness. Monitor SLA compliance in Trino by querying timestamps and comparing them against SLA targets. Generate reports and alerts to notify stakeholders of any SLA violations.
+
+2. **Integration Patterns Analysis**:
+
+   - **Metadata Inspection**: Query metadata from Trino to analyze the integration patterns used by data producers for data exchange. Examine metadata such as connection strings, data formats, protocols, and communication frequencies to understand the integration patterns from the data consumer's perspective.
+
+   - **Data Lineage Tracking**: Implement data lineage tracking solutions with Trino to trace the flow of data from producers to consumers. Analyze data lineage to understand the integration patterns, data transformations, and dependencies involved in data exchange between systems.
+
+3. **Data Quality Monitoring**:
+
+   - **Data Arrival Monitoring**: Implement real-time monitoring solutions with Trino to track data arrival rates and delays from the data consumer's perspective. Monitor data arrival timestamps and generate alerts for late or missing data arrivals compared to agreed-upon targets.
+
+   - **Data Validation Checks**: Perform data validation checks in Trino to ensure the completeness and accuracy of data from the data consumer's viewpoint. Validate data against predefined criteria such as expected values, ranges, or formats to ensure data quality and reliability.
+
+4. **Collaboration with Data Producers**:
+
+   - Collaborate with data producers to establish mutually agreed-upon targets for data timeliness and integration patterns. Communicate data consumer requirements and expectations regarding data freshness, availability, and integration mechanisms to data producers to ensure alignment.
+
+   - Work closely with data producers to address any issues or discrepancies identified during data timeliness and integration pattern analysis. Establish feedback mechanisms to provide input on data quality improvements and optimize data exchange processes between systems.
+
+By implementing these techniques in Trino from a data consumer point of view, you can effectively measure data timeliness and integration patterns, ensuring that data is both representative of current conditions and available for use by mutually agreed targets. Additionally, you can collaborate with data producers to improve data quality and optimize data exchange processes for better decision-making and business outcomes.
 
 # Timeliness
 To measure data timeliness and integration patterns in Trino, you can implement various techniques leveraging its querying capabilities, metadata inspection, and integration with external systems. Here's how you can approach it:
