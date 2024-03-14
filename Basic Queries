@@ -1,0 +1,58 @@
+Certainly! Below are some sample queries you can run in Trino to show catalogs, schemas, tables, and other information:
+
+1. Show available catalogs:
+```sql
+SHOW CATALOGS;
+```
+
+2. Show tables in a specific catalog:
+```sql
+SHOW TABLES FROM catalog_name;
+```
+
+3. Show columns of a specific table:
+```sql
+DESCRIBE catalog_name.schema_name.table_name;
+```
+
+4. Show schemas in a specific catalog:
+```sql
+SHOW SCHEMAS FROM catalog_name;
+```
+
+5. Show columns of a specific table in a specific catalog and schema:
+```sql
+DESCRIBE catalog_name.schema_name.table_name;
+```
+
+6. Show functions available in Trino:
+```sql
+SHOW FUNCTIONS;
+```
+
+7. Show session properties:
+```sql
+SHOW SESSION;
+```
+
+8. Show current user:
+```sql
+SHOW CURRENT_USER;
+```
+
+9. Show queries currently running in Trino:
+```sql
+SHOW QUERIES;
+```
+
+10. Show query details for a specific query ID:
+```sql
+SHOW QUERY <query_id>;
+```
+
+11. Show query history:
+```sql
+SHOW HISTORY;
+```
+
+These are just a few examples of the types of queries you can run in Trino to retrieve information about catalogs, schemas, tables, sessions, and queries. Depending on your specific use case and requirements, you can modify and expand these queries as needed.
