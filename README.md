@@ -1,176 +1,170 @@
-To create a use case for the scenario where an engineer works on a new feature for an old version, we'll structure it with a focus on the actions, preconditions, postconditions, and the steps involved. Here’s how you can write it:
+To use Jinja templates within a dbt project, you can leverage Jinja's powerful templating features to create reusable SQL snippets and macros. Here’s a detailed guide on how to set up and use Jinja templates in your dbt project:
 
-### Use Case: Developing a New Feature for an Old Version
+### 1. Create Jinja Macros
 
-**Title:** Develop and Deploy a New Feature for an Old Version
+Jinja macros allow you to define reusable pieces of SQL code that can be included in multiple dbt models. Macros are typically stored in `.sql` files within a `macros` directory.
 
-**Actor:** Engineer
+#### Example: `macros/common_filters.sql`
 
-**Goal:** To develop a new feature for an older version of the software and ensure it is correctly integrated and deployed.
+```sql
+-- macros/common_filters.sql
 
-**Preconditions:**
-- The old version has a dedicated master branch (e.g., `master_v1`).
-- The engineer has access to the repository and the necessary permissions.
-- The version release branch may or may not exist (e.g., `release_v1.1.0`).
+{% macro active_filter(table_alias='') %}
+  {% if table_alias %}
+    {{ table_alias }}.is_active = true
+  {% else %}
+    is_active = true
+  {% endif %}
+{% endmacro %}
+```
 
-**Postconditions:**
-- The new feature is integrated into the version release branch.
-- The feature is deployed to production.
-- The changes are merged back into the master branch for that version.
+### 2. Use Jinja Macros in dbt Models
 
-**Main Success Scenario (MSS):**
-1. **Identify the Version Branch:**
-   - The engineer identifies the appropriate master branch for the old version (e.g., `master_v1`).
+You can call Jinja macros within your dbt models using the `{{ macro_name() }}` syntax. This helps keep your SQL code DRY (Don't Repeat Yourself) by abstracting common logic into macros.
 
-2. **Create a Feature Branch:**
-   - The engineer creates a new feature branch from the version’s master branch (e.g., `feature_v1_new-feature`).
-     ```sh
-     git checkout master_v1
-     git pull origin master_v1
-     git checkout -b feature_v1_new-feature
-     ```
+#### Example Model Using Macro: `models/staging/staging_source_1.sql`
 
-3. **Develop the Feature:**
-   - The engineer develops the new feature on the `feature_v1_new-feature` branch.
-   - Regular commits are made to save progress and ensure version control.
+```sql
+-- models/staging/staging_source_1.sql
 
-4. **Create or Update the Release Branch:**
-   - If the release branch for the target version doesn’t exist, the engineer creates it (e.g., `release_v1.1.0`).
-     ```sh
-     git checkout -b release_v1.1.0
-     git push origin release_v1.1.0
-     ```
-   - If it exists, the engineer checks it out and updates it with the latest changes from the master branch.
-     ```sh
-     git checkout release_v1.1.0
-     git pull origin release_v1.1.0
-     git merge master_v1
-     ```
+with source_data as (
+    select
+        id,
+        name,
+        created_at,
+        is_active
+    from {{ source('source_database', 'source_table_1') }}
+)
+select
+    id,
+    name,
+    created_at
+from source_data
+where {{ active_filter('source_data') }}
+```
 
-5. **Merge Feature Branch into Release Branch:**
-   - Once development is complete, the engineer merges the feature branch into the release branch.
-     ```sh
-     git checkout release_v1.1.0
-     git merge feature_v1_new-feature
-     git push origin release_v1.1.0
-     ```
+### 3. Register Macros
 
-6. **Deploy to Production:**
-   - The release branch (`release_v1.1.0`) is deployed to production following the deployment protocols.
+Ensure that dbt is aware of your macros by placing them in the `macros` directory and referencing them correctly in your `dbt_project.yml` file.
 
-7. **Merge Back to Master Branch:**
-   - After successful deployment, the engineer merges the changes from the release branch back into the master branch for the version.
-     ```sh
-     git checkout master_v1
-     git pull origin master_v1
-     git merge release_v1.1.0
-     git push origin master_v1
-     ```
+#### Example: `dbt_project.yml`
 
-8. **Clean Up:**
-   - The engineer deletes the feature branch if it is no longer needed.
-     ```sh
-     git branch -d feature_v1_new-feature
-     git push origin --delete feature_v1_new-feature
-     ```
+```yaml
+# dbt_project.yml
 
-**Alternative Flows:**
-- **Branch Conflicts:** If there are conflicts during the merge steps, the engineer resolves them following the standard conflict resolution process.
-- **Rollback:** If the feature causes issues in production, a rollback procedure is followed to revert to the previous stable state.
+name: 'my_dbt_project'
+version: '1.0.0'
+config-version: 2
 
-**Extensions:**
-- **Testing:** Before deployment, the feature is thoroughly tested in a staging environment.
-- **Documentation:** The engineer updates any relevant documentation to reflect the changes made by the new feature.
+profile: 'my_dbt_project'
 
-This use case ensures a structured and clear approach to developing and deploying features for older versions of the software, minimizing disruptions and maintaining code integrity across different versions.
+model-paths: ["models"]
+macro-paths: ["macros"]  # Ensure this line is present
 
+models:
+  my_dbt_project:
+    staging:
+      +schema: staging
+    marts:
+      +schema: analytics
+```
 
---------------
+### 4. More Complex Examples
 
-Certainly! Below is the structured use case for an engineer working on a new feature for a new version of the software.
+You can create more complex Jinja templates to handle different types of transformations and filters.
 
-### Use Case: Developing a New Feature for a New Version
+#### Example Template: `macros/join_conditions.sql`
 
-**Title:** Develop and Deploy a New Feature for a New Version
+```sql
+-- macros/join_conditions.sql
 
-**Actor:** Engineer
+{% macro join_conditions(left_table, right_table, key) %}
+  {{ left_table }}.{{ key }} = {{ right_table }}.{{ key }}
+{% endmacro %}
+```
 
-**Goal:** To develop a new feature for the latest version of the software and ensure it is correctly integrated and deployed.
+#### Example Model Using Complex Template: `models/marts/mart_1.sql`
 
-**Preconditions:**
-- The new version has a dedicated master branch (e.g., `master_v2`).
-- The engineer has access to the repository and the necessary permissions.
-- The version release branch may or may not exist (e.g., `release_v2.1.0`).
+```sql
+-- models/marts/mart_1.sql
 
-**Postconditions:**
-- The new feature is integrated into the version release branch.
-- The feature is deployed to production.
-- The changes are merged back into the master branch for the new version.
+with staging_data_1 as (
+    select
+        id,
+        name,
+        created_at
+    from {{ ref('staging_source_1') }}
+),
+staging_data_2 as (
+    select
+        id,
+        description,
+        updated_at
+    from {{ ref('staging_source_2') }}
+)
 
-**Main Success Scenario (MSS):**
-1. **Identify the Version Branch:**
-   - The engineer identifies the appropriate master branch for the new version (e.g., `master_v2`).
+select
+    sd1.id,
+    sd1.name,
+    sd1.created_at,
+    sd2.description,
+    sd2.updated_at
+from staging_data_1 sd1
+join staging_data_2 sd2
+on {{ join_conditions('sd1', 'sd2', 'id') }}
+```
 
-2. **Create a Feature Branch:**
-   - The engineer creates a new feature branch from the version’s master branch (e.g., `feature_v2_new-feature`).
-     ```sh
-     git checkout master_v2
-     git pull origin master_v2
-     git checkout -b feature_v2_new-feature
-     ```
+### 5. Running dbt Commands
 
-3. **Develop the Feature:**
-   - The engineer develops the new feature on the `feature_v2_new-feature` branch.
-   - Regular commits are made to save progress and ensure version control.
+Run dbt commands as usual. The templates will be rendered at runtime.
 
-4. **Create or Update the Release Branch:**
-   - If the release branch for the target version doesn’t exist, the engineer creates it (e.g., `release_v2.1.0`).
-     ```sh
-     git checkout -b release_v2.1.0
-     git push origin release_v2.1.0
-     ```
-   - If it exists, the engineer checks it out and updates it with the latest changes from the master branch.
-     ```sh
-     git checkout release_v2.1.0
-     git pull origin release_v2.1.0
-     git merge master_v2
-     ```
+- **Test Connection**:
+  ```sh
+  dbt debug
+  ```
 
-5. **Merge Feature Branch into Release Branch:**
-   - Once development is complete, the engineer merges the feature branch into the release branch.
-     ```sh
-     git checkout release_v2.1.0
-     git merge feature_v2_new-feature
-     git push origin release_v2.1.0
-     ```
+- **Run All Models**:
+  ```sh
+  dbt run
+  ```
 
-6. **Deploy to Production:**
-   - The release branch (`release_v2.1.0`) is deployed to production following the deployment protocols.
+- **Run Specific Models**:
+  ```sh
+  dbt run --select marts.mart_1
+  ```
 
-7. **Merge Back to Master Branch:**
-   - After successful deployment, the engineer merges the changes from the release branch back into the master branch for the version.
-     ```sh
-     git checkout master_v2
-     git pull origin master_v2
-     git merge release_v2.1.0
-     git push origin master_v2
-     ```
+- **Test Models**:
+  ```sh
+  dbt test
+  ```
 
-8. **Clean Up:**
-   - The engineer deletes the feature branch if it is no longer needed.
-     ```sh
-     git branch -d feature_v2_new-feature
-     git push origin --delete feature_v2_new-feature
-     ```
+### 6. Dynamic SQL Generation
 
-**Alternative Flows:**
-- **Branch Conflicts:** If there are conflicts during the merge steps, the engineer resolves them following the standard conflict resolution process.
-- **Rollback:** If the feature causes issues in production, a rollback procedure is followed to revert to the previous stable state.
+You can use Jinja templates to generate dynamic SQL based on variables and conditions.
 
-**Extensions:**
-- **Testing:** Before deployment, the feature is thoroughly tested in a staging environment.
-- **Documentation:** The engineer updates any relevant documentation to reflect the changes made by the new feature.
+#### Example: `macros/dynamic_sql.sql`
 
-This use case ensures a structured and clear approach to developing and deploying features for the latest version of the software, maintaining a streamlined workflow and code integrity across different versions.
+```sql
+-- macros/dynamic_sql.sql
 
--------------
+{% macro dynamic_select(columns) %}
+  select
+  {% for column in columns %}
+    {{ column }}{% if not loop.last %},{% endif %}
+  {% endfor %}
+  from my_table
+{% endmacro %}
+```
+
+#### Example Model Using Dynamic SQL: `models/dynamic_model.sql`
+
+```sql
+-- models/dynamic_model.sql
+
+{% set columns = ['id', 'name', 'created_at'] %}
+{{ dynamic_select(columns) }}
+```
+
+### Summary
+
+By using Jinja templates in your dbt project, you can create modular, reusable SQL code that enhances maintainability and reduces redundancy. Follow these steps to integrate Jinja macros into your dbt models, allowing you to leverage the full power of templating for your data transformations.
