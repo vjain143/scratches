@@ -1,5 +1,3 @@
-Let’s walk through how to integrate the Flask-based HTTP trigger with git-sync in a Kubernetes environment. We’ll run the Flask HTTP server in a sidecar container, and the git-sync container will be signaled to perform a sync when triggered.
-
 Kubernetes Pod Setup with git-sync and HTTP Trigger
 
 We will use the git-sync container to clone and sync a Git repository, and a second container to host the Flask HTTP server that triggers manual syncs.
@@ -7,7 +5,7 @@ We will use the git-sync container to clone and sync a Git repository, and a sec
 1. Kubernetes Pod Manifest
 
 Here is a Kubernetes manifest for a Pod running git-sync and the Flask HTTP server side by side:
-
+'''yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -58,7 +56,7 @@ spec:
   # Shared tmp volume for the git-sync PID file
   - name: shared-tmp
     emptyDir: {}
-
+'''
 In this setup:
 
 	•	app-container: Your main application container (optional) that uses the Git-synced files.
