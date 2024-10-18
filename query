@@ -1,0 +1,122 @@
+To retrieve both completed and currently running queries that have taken the longest time to complete or are still running, you can adjust the query to include both:
+
+	1.	For completed queries, calculate the duration using the difference between end_time and start_time.
+	2.	For currently running queries, use CURRENT_TIMESTAMP as the end_time to show the ongoing duration.
+
+Here’s the SQL query to find the longest-running completed queries as well as those still running:
+
+SELECT 
+    query_id, 
+    query, 
+    state, 
+    start_time, 
+    COALESCE(end_time, CURRENT_TIMESTAMP) AS end_time,  -- Use current time for running queries
+    COALESCE(CAST(end_time AS timestamp), CURRENT_TIMESTAMP) - CAST(start_time AS timestamp) AS duration
+FROM 
+    trino_events.trino_queries
+WHERE 
+    (state = 'RUNNING' OR state = 'FINISHED') -- Include only running and completed queries
+ORDER BY 
+    duration DESC
+LIMIT 10;
+
+Explanation:
+
+	•	query_id: The unique identifier for each query.
+	•	query: The SQL text of the query.
+	•	state: The state of the query (either RUNNING or FINISHED).
+	•	start_time and end_time: Start and end times of the query. If the query is still running, end_time is replaced with the current timestamp.
+	•	duration: The total time the query has been running (for RUNNING queries) or took to complete (for FINISHED queries).
+
+This will return both the longest-running completed queries and those still running, ordered by the total duration.
+
+To find queries that have been running for a very long time in the trino_events.trino_queries table (i.e., queries that are still running or were running for a long time before completion), you can calculate the duration for running queries where the end_time is NULL, and for completed queries by calculating the difference between start_time and end_time.
+
+Here’s a SQL query to find the longest-running queries, including those still running:
+
+SELECT 
+    query_id, 
+    query, 
+    state, 
+    start_time, 
+    COALESCE(end_time, CURRENT_TIMESTAMP) AS end_time,  -- Use current time for running queries
+    COALESCE(CAST(end_time AS timestamp), CURRENT_TIMESTAMP) - CAST(start_time AS timestamp) AS duration
+FROM 
+    trino_events.trino_queries
+WHERE 
+    state = 'RUNNING' OR end_time IS NOT NULL
+ORDER BY 
+    duration DESC
+LIMIT 10;
+
+Explanation:
+
+	•	query_id: The unique identifier for the query.
+	•	query: The SQL query text.
+	•	state: The current or final state of the query (e.g., RUNNING, FINISHED).
+	•	start_time: When the query started.
+	•	end_time: When the query finished. For running queries, end_time is NULL, so we use CURRENT_TIMESTAMP to calculate the ongoing duration.
+	•	duration: The calculated duration of the query (either completed or running).
+
+This query will return the queries that have been running or ran for the longest time, including those still running.
+
+To find the queries that consumed the most memory in the trino_events.trino_queries table, you can use the memory_bytes field (or a similar field, depending on the schema of your trino_events.trino_queries table) to determine the amount of memory used by each query.
+
+Here’s an example SQL query to retrieve the queries that consumed the most memory:
+
+SELECT 
+    query_id, 
+    query, 
+    state, 
+    start_time, 
+    end_time, 
+    memory_bytes / (1024 * 1024 * 1024) AS memory_gb
+FROM 
+    trino_events.trino_queries
+WHERE 
+    memory_bytes IS NOT NULL
+ORDER BY 
+    memory_bytes DESC
+LIMIT 10;
+
+Explanation:
+
+	•	query_id: The unique identifier of the query.
+	•	query: The actual SQL query text.
+	•	state: The final state of the query (e.g., FINISHED, FAILED).
+	•	start_time and end_time: Timestamps showing when the query started and finished.
+	•	memory_bytes: The total memory consumed by the query in bytes.
+	•	memory_gb: The memory consumed, converted into gigabytes for readability (dividing by 1024^3).
+
+
+To find the longest-running query from the trino_events.trino_queries table, which logs historical queries in Trino, you can query that table using the end_time and start_time columns to calculate the duration of each query.
+
+Here’s an example SQL query to retrieve the longest-running query from the trino_events.trino_queries table:
+
+SELECT 
+    query_id, 
+    query, 
+    state, 
+    start_time, 
+    end_time, 
+    CAST(end_time AS timestamp) - CAST(start_time AS timestamp) AS duration
+FROM 
+    trino_events.trino_queries
+WHERE 
+    end_time IS NOT NULL  -- Exclude currently running queries
+ORDER BY 
+    duration DESC
+LIMIT 1;
+
+Explanation:
+
+	•	query_id: The unique identifier for the query.
+	•	query: The actual SQL query text.
+	•	state: The final state of the query (e.g., FINISHED, FAILED).
+	•	start_time and end_time: Timestamps indicating when the query started and finished.
+	•	duration: The time difference between end_time and start_time, representing how long the query ran.
+
+This query will return the query with the longest duration from the trino_events.trino_queries table.
+
+
+This will give you the queries that consumed the most memory, sorted in descending order. You can adjust the LIMIT to see more or fewer results.
