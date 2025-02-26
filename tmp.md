@@ -169,6 +169,69 @@ This diagram emphasizes the modularity and scalability of the architecture while
 
 Parallel Processing Rather than rely on vertical scaling by making a single server more powerful, it is able to distribute all processing across a cluster of many servers, which is referred to as horizontal scaling. This means that you can add more nodes and servers to your Trinocluster to gain more processing power. The Coordinator is the boss server in a Trinocluster. There is only one Coordinator node in each Trinode deployment. It handles incoming queries, then delegates work to the many worker nodes. We'll get back to worker nodes in a bit, but for now, we'll focus on what the Coordinator does, the instant a query is submitted, and then we'll travel through the life of a Trinocluster query. When you submit a query to Trinocluster, you're writing SQL in plain text and sending it to the Trinocluster Coordinator. The Coordinator has to parse from text into representation of the query that can be analyzed, understood, and executed. It uses a tool called Antler to do this, breaking down the query into individual statements, identifiers, and expressions that the Trino engine can understand. Once the Coordinator has parsed the query, it analyzes the query and creates a query plan. The query plan broadly represents the steps it will take to process the data and return your results. During this time, the Coordinator uses table statistics and metadata to optimize that plan to be as efficient as possible. We'll explore how those optimizations work in just a moment. A distributed query plan is broken down into stages, which represent the high-level steps necessary to complete the query. Stages are then broken down by the Coordinator into smaller tasks, and those tasks are scheduled across the worker nodes in the Trinocluster. A query can be broken down into many tasks, with each task processing a small piece of data. As the worker nodes are assigned tasks, they break them down further into units of work called splits, allowing for parallel processing. Splits are the lowest level of abstraction within Trino. They are a single thread performing operations on the data that you're querying. Once all the splits in a task are completed, the worker node is done with the task and communicates with other worker nodes and with the Coordinator, compiling results to complete the stage, and then the Coordinator moves on to the next stage, breaking it down into tasks and starting that work all over again. That's fundamentally the core of how Trino operates.
 
+ Query Execution Time (Avg, P95, P99)
+SELECT 
+    date_trunc('minute', create_time) AS time_bucket,
+    avg(execution_time_ms) AS avg_execution_time,
+    approx_percentile(execution_time_ms, 0.95) AS p95_execution_time,
+    approx_percentile(execution_time_ms, 0.99) AS p99_execution_time
+FROM trino_events.trino_queries
+WHERE create_time >= current_timestamp - interval '1 day'
+GROUP BY time_bucket
+ORDER BY time_bucket;
 
+Query Throughput (Queries Per Minute)
+SELECT 
+    date_trunc('minute', create_time) AS time_bucket,
+    COUNT(query_id) AS query_count
+FROM trino_events.trino_queries
+WHERE create_time >= current_timestamp - interval '1 day'
+GROUP BY time_bucket
+ORDER BY time_bucket;
+
+ Top 10 Longest Running Queries
+ SELECT 
+    query_id, 
+    user, 
+    execution_time_ms, 
+    query 
+FROM trino_events.trino_queries
+WHERE create_time >= current_timestamp - interval '1 day'
+ORDER BY execution_time_ms DESC
+LIMIT 10;
+
+Query Load Per User
+SELECT 
+    user, 
+    COUNT(*) AS query_count,
+    avg(execution_time_ms) AS avg_execution_time
+FROM trino_events.trino_queries
+WHERE create_time >= current_timestamp - interval '1 day'
+GROUP BY user
+ORDER BY query_count DESC;
+
+Query Type Distribution (DML vs. SELECT)
+SELECT 
+    CASE 
+        WHEN query LIKE 'SELECT%' THEN 'SELECT'
+        WHEN query LIKE 'INSERT%' THEN 'INSERT'
+        WHEN query LIKE 'UPDATE%' THEN 'UPDATE'
+        WHEN query LIKE 'DELETE%' THEN 'DELETE'
+        ELSE 'OTHER'
+    END AS query_type,
+    COUNT(*) AS query_count
+FROM trino_events.trino_queries
+WHERE create_time >= current_timestamp - interval '1 day'
+GROUP BY query_type
+ORDER BY query_count DESC;
+
+Active vs. Completed vs. Queued Queries
+SELECT 
+    state, 
+    COUNT(*) AS query_count
+FROM trino_events.trino_queries
+WHERE create_time >= current_timestamp - interval '1 day'
+GROUP BY state
+ORDER BY query_count DESC;
 
 
