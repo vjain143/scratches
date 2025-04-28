@@ -234,4 +234,11 @@ WHERE create_time >= current_timestamp - interval '1 day'
 GROUP BY state
 ORDER BY query_count DESC;
 
+------
+--add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED \
+--add-exports=java.security.jgss/sun.security.krb5.internal=ALL-UNNAMED \
+--add-exports=java.security.jgss/sun.security.krb5.internal.crypto=ALL-UNNAMED \
+--add-exports=java.security.jgss/sun.security.krb5.internal.ccache=ALL-UNNAMED \
+--add-exports=java.security.jgss/sun.security.krb5.internal.ktab=ALL-UNNAMED
+
 
