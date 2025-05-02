@@ -242,3 +242,93 @@ ORDER BY query_count DESC;
 --add-exports=java.security.jgss/sun.security.krb5.internal.ktab=ALL-UNNAMED
 
 
+----------
+package io.trino.plugin.oracle.auth;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.Configuration;
+import javax.security.auth.login.LoginContext;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public final class OracleKerberosUtils {
+    private OracleKerberosUtils() {}
+
+    public static Subject loginWithJaas(String loginContextName, String jaasFilePath) {
+        try {
+            Configuration config = Configuration.getInstance(
+                    "JavaLoginConfig",
+                    new javax.security.auth.login.Configuration.Parameters() {
+                        @Override
+                        public URI getURI() {
+                            try {
+                                return new File(jaasFilePath).toURI();
+                            } catch (Exception e) {
+                                throw new RuntimeException("Invalid JAAS file path", e);
+                            }
+                        }
+                    }
+            );
+
+            LoginContext loginContext = new LoginContext(loginContextName, null, null, config);
+            loginContext.login();
+            return loginContext.getSubject();
+        } catch (Exception e) {
+            throw new RuntimeException("Kerberos login failed for context: " + loginContextName, e);
+        }
+    }
+}
+
+--------------
+
+Subject oracleSubject = OracleKerberosUtils.loginWithJaas("OracleJDBC", "/path/to/oracle-jaas.conf");
+
+this.dataSource = Subject.doAs(oracleSubject, (PrivilegedExceptionAction<OpenTelemetryDataSource>) () -> {
+    PoolDataSource poolDataSource = PoolDataSourceFactory.getPoolDataSource();
+    
+    // Set Oracle JDBC properties
+    poolDataSource.setConnectionFactoryClassName(OracleDataSource.class.getName());
+    poolDataSource.setURL(connectionUrl);
+    poolDataSource.setInitialPoolSize(connectionPoolMinSize);
+    poolDataSource.setMinPoolSize(connectionPoolMinSize);
+    poolDataSource.setMaxPoolSize(connectionPoolMaxSize);
+    poolDataSource.setValidateConnectionOnBorrow(true);
+    poolDataSource.setConnectionProperties(connectionProperties);
+    poolDataSource.setInactiveConnectionTimeout(toIntExact(inactiveConnectionTimeout.roundTo(SECONDS)));
+
+    // Set credentials
+    credentialProvider.getConnectionUser(Optional.empty())
+            .ifPresent(user -> {
+                try {
+                    poolDataSource.setUser(user);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+    credentialProvider.getConnectionPassword(Optional.empty())
+            .ifPresent(password -> {
+                try {
+                    poolDataSource.setPassword(password);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+    return new OpenTelemetryDataSource(poolDataSource, openTelemetry);
+});
+
+------------
+
+Connection conn = Subject.doAs(oracleSubject, (PrivilegedExceptionAction<Connection>) () -> {
+    Properties props = new Properties();
+    props.setProperty("oracle.net.authentication_services", "(KERBEROS5)");
+    props.setProperty("oracle.net.kerberos5_conf", "/path/to/krb5.conf");
+    props.setProperty("oracle.net.KerberosJaasLoginModule", "OracleJDBC");
+
+    // JDBC URL format: jdbc:oracle:thin:@//host:port/service
+    return DriverManager.getConnection("jdbc:oracle:thin:@//host:port/service", props);
+});
+
+
