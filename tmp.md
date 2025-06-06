@@ -359,3 +359,54 @@ JVM tuning, memory configs
 🔴 9
 Observability & Scaling
 Prometheus, Grafana
+
+
+--------
+
+1. ✅ Deployment & Configuration Management
+	•	Maintain Helm charts or Kustomize manifests
+	•	Automate deployment pipelines (CI/CD) for Trino and its dependencies (Hive metastore, MinIO, etc.)
+	•	Version upgrades and rollback strategies for Trino, connectors, and metastore
+
+2. 🛠️ Resource & Performance Tuning
+	•	Set optimal JVM flags (-Xmx, GC settings) for Coordinator and Workers
+	•	Tune query.max-memory, exchange.max-buffer-size, etc.
+	•	Adjust Kubernetes requests, limits, and node affinity for resource efficiency
+	•	Benchmark and load test query performance
+
+3. 📈 Monitoring & Observability
+	•	Integrate Trino with Prometheus and Grafana
+	•	Monitor:
+	•	Query latency, memory usage, GC times
+	•	Failed queries, worker availability
+	•	Metastore latency and catalog connection health
+	•	Set up alerts (e.g., PagerDuty) for anomalies
+
+4. 🔁 Scaling & Auto-Healing
+	•	Configure horizontal scaling of workers (via KEDA or HPA if demand-driven)
+	•	Implement liveness and readiness probes for health checks
+	•	Restart pods on failures or memory leaks via automation (e.g., self-healing controllers)
+
+5. 🔐 Security & Access Control
+	•	Enforce TLS between Coordinator and Workers
+	•	Enable authentication (JWT, LDAP, or custom plugins)
+	•	Set up RBAC using Trino’s access control or external solutions (e.g., OPA)
+	•	Secure secrets via Kubernetes Secrets or Vault
+
+6. 💽 Data Infrastructure Support
+	•	Ensure metastore is highly available (e.g., backed by HA MySQL/Postgres)
+	•	Manage MinIO/S3 for object storage performance and durability
+	•	Verify connector health (Hive, MySQL, Iceberg, etc.)
+
+7. 🧪 Incident Response & Troubleshooting
+	•	Investigate failed queries, timeouts, memory overflows
+	•	Analyze trino.log, GC logs, jvm.gc.prometheus-exporter
+	•	Debug container-level issues (OOM, network failures, PVC mount issues)
+
+8. 📚 Documentation & Runbooks
+	•	Maintain runbooks for:
+	•	Scaling Trino
+	•	Query debugging
+	•	TLS certificate renewal
+	•	Disaster recovery (e.g., corrupted metastore or MinIO outage)
+	•	Maintain onboarding docs for data engineers and analysts
