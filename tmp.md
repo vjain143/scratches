@@ -332,3 +332,30 @@ Connection conn = Subject.doAs(oracleSubject, (PrivilegedExceptionAction<Connect
 });
 
 
+🟢 1
+Linux + CLI Basics
+Bash
+🟢 2
+SQL & Trino Queries
+Trino CLI
+🟡 3
+Kubernetes Basics
+Minikube / KIND
+🟡 4
+Helm Basics
+Helm
+🟡 5
+Trino Architecture
+Trino docs / YouTube
+🟠 6
+Trino on K8s (dev env)
+Trino Helm chart
+🔵 7
+Connect to Hive/MinIO
+Hive Metastore, MinIO
+🔵 8
+Prod deployment tuning
+JVM tuning, memory configs
+🔴 9
+Observability & Scaling
+Prometheus, Grafana
